@@ -33,6 +33,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/ethereum/go-ethereum/log"
 )
@@ -150,7 +151,7 @@ func TestClientBatchRequest(t *testing.T) {
 }
 
 func TestClientBatchRequest_len(t *testing.T) {
-	b, err := json.Marshal([]jsonrpcMessage{
+	b, err := sonic.Marshal([]jsonrpcMessage{
 		{Version: "2.0", ID: json.RawMessage("1"), Method: "foo", Result: json.RawMessage(`"0x1"`)},
 		{Version: "2.0", ID: json.RawMessage("2"), Method: "bar", Result: json.RawMessage(`"0x2"`)},
 	})
@@ -444,7 +445,7 @@ func (r *unsubscribeRecorder) readBatch() ([]*jsonrpcMessage, bool, error) {
 	for _, msg := range msgs {
 		if msg.isUnsubscribe() {
 			var params []string
-			if err := json.Unmarshal(msg.Params, &params); err != nil {
+			if err := sonic.Unmarshal(msg.Params, &params); err != nil {
 				panic("unsubscribe decode error: " + err.Error())
 			}
 			r.unsubscribes[params[0]] = true

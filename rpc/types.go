@@ -18,12 +18,12 @@ package rpc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math"
 	"strconv"
 	"strings"
 
+	"github.com/bytedance/sonic"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
@@ -144,7 +144,7 @@ type BlockNumberOrHash struct {
 func (bnh *BlockNumberOrHash) UnmarshalJSON(data []byte) error {
 	type erased BlockNumberOrHash
 	e := erased{}
-	err := json.Unmarshal(data, &e)
+	err := sonic.Unmarshal(data, &e)
 	if err == nil {
 		if e.BlockNumber != nil && e.BlockHash != nil {
 			return fmt.Errorf("cannot specify both BlockHash and BlockNumber, choose one or the other")
@@ -155,7 +155,7 @@ func (bnh *BlockNumberOrHash) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	var input string
-	err = json.Unmarshal(data, &input)
+	err = sonic.Unmarshal(data, &input)
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func BlockNumberOrHashWithHash(hash common.Hash, canonical bool) BlockNumberOrHa
 // DecimalOrHex unmarshals a non-negative decimal or hex parameter into a uint64.
 type DecimalOrHex uint64
 
-// UnmarshalJSON implements json.Unmarshaler.
+// UnmarshalJSON implements sonic.Unmarshaler.
 func (dh *DecimalOrHex) UnmarshalJSON(data []byte) error {
 	input := strings.TrimSpace(string(data))
 	if len(input) >= 2 && input[0] == '"' && input[len(input)-1] == '"' {

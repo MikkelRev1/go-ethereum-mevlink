@@ -29,6 +29,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/bytedance/sonic"
 )
 
 var (
@@ -121,7 +123,7 @@ func (n *Notifier) CreateSubscription() *Subscription {
 // Notify sends a notification to the client with the given data as payload.
 // If an error occurs the RPC connection is closed and the error is returned.
 func (n *Notifier) Notify(id ID, data interface{}) error {
-	enc, err := json.Marshal(data)
+	enc, err := sonic.Marshal(data)
 	if err != nil {
 		return err
 	}
@@ -173,7 +175,7 @@ func (n *Notifier) activate() error {
 }
 
 func (n *Notifier) send(sub *Subscription, data json.RawMessage) error {
-	params, _ := json.Marshal(&subscriptionResult{ID: string(sub.ID), Result: data})
+	params, _ := sonic.Marshal(&subscriptionResult{ID: string(sub.ID), Result: data})
 	ctx := context.Background()
 
 	msg := &jsonrpcMessage{
@@ -199,7 +201,7 @@ func (s *Subscription) Err() <-chan error {
 
 // MarshalJSON marshals a subscription as its ID.
 func (s *Subscription) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.ID)
+	return sonic.Marshal(s.ID)
 }
 
 // ClientSubscription is a subscription established through the Client's Subscribe or
@@ -367,7 +369,7 @@ func (sub *ClientSubscription) forward() (unsubscribeServer bool, err error) {
 
 func (sub *ClientSubscription) unmarshal(result json.RawMessage) (interface{}, error) {
 	val := reflect.New(sub.etype)
-	err := json.Unmarshal(result, val.Interface())
+	err := sonic.Unmarshal(result, val.Interface())
 	return val.Elem().Interface(), err
 }
 

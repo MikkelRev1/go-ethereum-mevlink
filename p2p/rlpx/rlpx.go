@@ -19,7 +19,6 @@ package rlpx
 
 import (
 	"bytes"
-	"crypto/aes"
 	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -30,6 +29,7 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"log"
 	mrand "math/rand"
 	"net"
 	"time"
@@ -38,6 +38,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto/ecies"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/golang/snappy"
+	"github.com/microsoft/go-crypto-openssl/openssl"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -323,11 +324,15 @@ func (c *Conn) InitWithSecrets(sec Secrets) {
 	if c.session != nil {
 		panic("can't handshake twice")
 	}
-	macc, err := aes.NewCipher(sec.MAC)
+  err := openssl.Init()
+  if err != nil {
+    log.Fatal(err)
+  }
+	macc, err := openssl.NewAESCipher(sec.MAC)
 	if err != nil {
 		panic("invalid MAC secret: " + err.Error())
 	}
-	encc, err := aes.NewCipher(sec.AES)
+	encc, err := openssl.NewAESCipher(sec.AES)
 	if err != nil {
 		panic("invalid AES secret: " + err.Error())
 	}

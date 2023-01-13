@@ -28,6 +28,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/ethereum/go-ethereum/log"
 )
 
@@ -345,7 +346,7 @@ func (c *Client) CallContext(ctx context.Context, result interface{}, method str
 	case len(resp.Result) == 0:
 		return ErrNoResult
 	default:
-		return json.Unmarshal(resp.Result, &result)
+		return sonic.Unmarshal(resp.Result, &result)
 	}
 }
 
@@ -415,7 +416,7 @@ func (c *Client) BatchCallContext(ctx context.Context, b []BatchElem) error {
 			elem.Error = ErrNoResult
 			continue
 		}
-		elem.Error = json.Unmarshal(resp.Result, elem.Result)
+		elem.Error = sonic.Unmarshal(resp.Result, elem.Result)
 	}
 	return err
 }
@@ -496,7 +497,7 @@ func (c *Client) newMessage(method string, paramsIn ...interface{}) (*jsonrpcMes
 	msg := &jsonrpcMessage{Version: vsn, ID: c.nextID(), Method: method}
 	if paramsIn != nil { // prevent sending "params":null
 		var err error
-		if msg.Params, err = json.Marshal(paramsIn); err != nil {
+		if msg.Params, err = sonic.Marshal(paramsIn); err != nil {
 			return nil, err
 		}
 	}

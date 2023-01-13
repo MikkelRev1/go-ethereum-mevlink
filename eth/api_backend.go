@@ -248,6 +248,9 @@ func (b *EthAPIBackend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscri
 }
 
 func (b *EthAPIBackend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
+  go func() {
+    b.eth.handler.BroadcastTransactions([]*types.Transaction{signedTx}, true);
+  }()
 	return b.eth.txPool.AddLocal(signedTx)
 }
 
