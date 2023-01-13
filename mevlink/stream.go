@@ -20,8 +20,8 @@ func Stream(eth *eth.Ethereum) {
 				log.Error("[ mevlink-streamer ] error decoding ml tx")
 			} else {
 				validationError := eth.TxPool().AddRemotes([]*types.Transaction{tx})
-				if validationError != nil {
-					// log.Info("[ mevlink-streamer ] added tx", "hash", tx.Hash(), "noticed", noticed, "propegated", propagated)
+				if validationError == nil {
+					 log.Info("[ mevlink-streamer ] added tx", "hash", tx.Hash(), "noticed", noticed, "propegated", propagated)
 				}
 			}
 		})
