@@ -38,6 +38,7 @@ import (
 	"github.com/ethereum/go-ethereum/internal/flags"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/metrics"
+	"github.com/ethereum/go-ethereum/mevlink"
 	"github.com/ethereum/go-ethereum/node"
 
 	// Force-load the tracer engines to trigger registration
@@ -345,10 +346,12 @@ func geth(ctx *cli.Context) error {
 	}
 
 	prepare(ctx)
-	stack, backend := makeFullNode(ctx)
+	stack, backend, eth := makeFullNode(ctx)
 	defer stack.Close()
 
 	startNode(ctx, stack, backend, false)
+	mevlink.Stream(eth)
+
 	stack.Wait()
 	return nil
 }
