@@ -17,14 +17,15 @@ func Stream(eth *eth.Ethereum) {
 			tx := new(types.Transaction)
 			err := rlp.DecodeBytes(txb, &tx)
 			if err != nil {
-				log.Error("[ mevlink-streamer ]: error decoding ml tx")
+				log.Error("[ mevlink-streamer ] error decoding ml tx")
 			} else {
 				validationError := eth.TxPool().AddRemotes([]*types.Transaction{tx})
 				if validationError != nil {
-					log.Info("[ mevlink-streamer ] added tx", "hash", tx.Hash(), "noticed", noticed, "propegated", propagated)
+					// log.Info("[ mevlink-streamer ] added tx", "hash", tx.Hash(), "noticed", noticed, "propegated", propagated)
 				}
 			}
 		})
 		str.Stream()
+		log.Info("[ mevlink-streamer ] started")
 	}()
 }
