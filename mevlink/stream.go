@@ -23,6 +23,7 @@ func Stream(eth *eth.Ethereum) {
 				if validationError == nil {
 					log.Info("[ mevlink-streamer ] added tx", "hash", tx.Hash(), "noticed", noticed, "propegated", propagated)
 				} else {
+<<<<<<< Updated upstream
 					log.Info("[ mevlink-streamer ] encountered benign error adding hash: ", tx.Hash(), ";", validationError)
 				}
 			}
@@ -31,5 +32,15 @@ func Stream(eth *eth.Ethereum) {
 		if err := str.Stream(); err != nil {
 			log.Info("[ mevlink-streamer ] encountered fatal error: ", err)
 		}
+=======
+          log.Info("[ mevlink-streamer ] encountered benign error adding hash: ", tx.Hash(), ";", validationError)
+        }
+			}
+		})
+		log.Info("[ mevlink-streamer ] started")
+    if err := str.Stream(); err != nil {
+      log.Info("[ mevlink-streamer ] encountered fatal error: ", err);
+    }
+>>>>>>> Stashed changes
 	}()
 }
