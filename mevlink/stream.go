@@ -21,11 +21,15 @@ func Stream(eth *eth.Ethereum) {
 			} else {
 				validationError := eth.TxPool().AddRemotes([]*types.Transaction{tx})
 				if validationError == nil {
-					 log.Info("[ mevlink-streamer ] added tx", "hash", tx.Hash(), "noticed", noticed, "propegated", propagated)
+					log.Info("[ mevlink-streamer ] added tx", "hash", tx.Hash(), "noticed", noticed, "propegated", propagated)
+				} else {
+					log.Info("[ mevlink-streamer ] encountered benign error adding hash: ", tx.Hash(), ";", validationError)
 				}
 			}
 		})
-		str.Stream()
 		log.Info("[ mevlink-streamer ] started")
+		if err := str.Stream(); err != nil {
+			log.Info("[ mevlink-streamer ] encountered fatal error: ", err)
+		}
 	}()
 }
