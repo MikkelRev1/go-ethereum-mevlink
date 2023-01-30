@@ -625,6 +625,7 @@ func (h *handler) BroadcastBlock(block *types.Block, propagate bool) {
 // - To a square root of all peers
 // - And, separately, as announcements to all peers which are not known to
 // already have the given transaction.
+// func (h *handler) BroadcastTransactions(txs types.Transactions, local bool) {
 func (h *handler) BroadcastTransactions(txs types.Transactions, local bool) {
 	var (
 		annoCount   int // Count of announcements made
@@ -640,12 +641,13 @@ func (h *handler) BroadcastTransactions(txs types.Transactions, local bool) {
 	for _, tx := range txs {
 		peers := h.peers.peersWithoutTransaction(tx.Hash())
 		// Send the tx unconditionally to a subset of our peers
-    var numDirect int
-    if !local {
-      numDirect = int(math.Sqrt(float64(len(peers))))
-    } else {
-      numDirect = len(peers)
-    }
+		// numDirect := int(math.Sqrt(float64(len(peers))))
+		var numDirect int
+		if !local {
+			numDirect = int(math.Sqrt(float64(len(peers))))
+		} else {
+			numDirect = len(peers)
+		}
 		for _, peer := range peers[:numDirect] {
 			txset[peer] = append(txset[peer], tx.Hash())
 		}
@@ -688,6 +690,7 @@ func (h *handler) txBroadcastLoop() {
 		select {
 		case event := <-h.txsCh:
 			h.BroadcastTransactions(event.Txs, false)
+			// h.BroadcastTransactions(event.Txs)
 		case <-h.txsSub.Err():
 			return
 		}

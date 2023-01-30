@@ -57,7 +57,7 @@ type Transaction struct {
 	size atomic.Value
 	from atomic.Value
 
-	rlp atomic.Value
+	// rlp atomic.Value
 }
 
 // NewTx creates a new transaction.
@@ -92,32 +92,42 @@ type TxData interface {
 // EncodeRLP implements rlp.Encoder
 func (tx *Transaction) EncodeRLP(w io.Writer) error {
 	if tx.Type() == LegacyTxType {
-		cachedRlp := tx.rlp.Load()
-		if cachedRlp == nil {
-			var err error
-			cachedRlp, err = rlp.EncodeToBytes(tx.inner)
-			if err != nil {
-				return err
-			}
-			tx.rlp.Store(cachedRlp)
-		}
-		_, err := w.Write(cachedRlp.([]byte))
-		return err
-	} else {
-		cachedRlp := tx.rlp.Load()
-		if cachedRlp == nil {
-			// It's an EIP-2718 typed TX envelope.
-			buf := encodeBufferPool.Get().(*bytes.Buffer)
-			defer encodeBufferPool.Put(buf)
-			buf.Reset()
-			if err := tx.encodeTyped(buf); err != nil {
-				return err
-			}
-			cachedRlp = buf.Bytes()
-			tx.rlp.Store(cachedRlp)
-		}
-		return rlp.Encode(w, cachedRlp)
+		return rlp.Encode(w, tx.inner)
+		// cachedRlp := tx.rlp.Load()
+		// if cachedRlp == nil {
+		// 	var err error
+		// 	cachedRlp, err = rlp.EncodeToBytes(tx.inner)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	tx.rlp.Store(cachedRlp)
+		// }
+		// _, err := w.Write(cachedRlp.([]byte))
+		// return err
 	}
+	// It's an EIP-2718 typed TX envelope.
+	buf := encodeBufferPool.Get().(*bytes.Buffer)
+	defer encodeBufferPool.Put(buf)
+	buf.Reset()
+	if err := tx.encodeTyped(buf); err != nil {
+		return err
+	}
+	// } else {
+	// 	cachedRlp := tx.rlp.Load()
+	// 	if cachedRlp == nil {
+	// 		// It's an EIP-2718 typed TX envelope.
+	// 		buf := encodeBufferPool.Get().(*bytes.Buffer)
+	// 		defer encodeBufferPool.Put(buf)
+	// 		buf.Reset()
+	// 		if err := tx.encodeTyped(buf); err != nil {
+	// 			return err
+	// 		}
+	// 		cachedRlp = buf.Bytes()
+	// 		tx.rlp.Store(cachedRlp)
+	// 	}
+	// 	return rlp.Encode(w, cachedRlp)
+	// }
+	return rlp.Encode(w, buf.Bytes())
 }
 
 // encodeTyped writes the canonical encoding of a typed transaction to w.

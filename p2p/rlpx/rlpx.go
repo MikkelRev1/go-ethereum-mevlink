@@ -324,10 +324,10 @@ func (c *Conn) InitWithSecrets(sec Secrets) {
 	if c.session != nil {
 		panic("can't handshake twice")
 	}
-  err := openssl.Init()
-  if err != nil {
-    log.Fatal(err)
-  }
+	err := openssl.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
 	macc, err := openssl.NewAESCipher(sec.MAC)
 	if err != nil {
 		panic("invalid MAC secret: " + err.Error())
